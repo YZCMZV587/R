@@ -1,0 +1,28 @@
+library(stringr)
+
+urls<-read.csv("urls.csv",header=FALSE)
+urls<-as.character(urls[,1])
+
+courseinfo<-function(urls){
+  name<- NA
+  university<- NA
+  platform<- NA
+  starttime<- NA
+  courseurl<-NA
+  for(i in 1:length(urls)){
+    info<-readLines(urls[i],encoding="UTF-8")
+    namesp<-regexpr("data-title=",info[54])[1]+12
+    name[i]<- str_sub(info[54],namesp,nchar(info[54])-2)
+    platformrow<-grep("平台：",info)
+    platform[i]<- str_sub(info[platformrow],35,nchar(info[platformrow])-2)
+    datarow<-grep("开始时间：",info)
+    starttime[i]<-str_sub(info[datarow],38,nchar(info[datarow])-4)
+    schoolrow<- grep("学校：",info)+1
+    university[i]<-str_sub(info[schoolrow],64,nchar(info[schoolrow])-9)
+    courseurl[i]<-urls[i]
+}
+  coursetb<-data.frame(name,platform,university,starttime,courseurl)
+  return(coursetb)
+}
+
+courselist<-courseinfo(urls)
